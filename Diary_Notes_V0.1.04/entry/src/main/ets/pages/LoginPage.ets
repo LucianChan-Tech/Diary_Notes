@@ -9,25 +9,28 @@ struct LoginPage {
   @State private isLoading: boolean = false;
   @State private showPassword: boolean = false;
 
+  // 1. 登录凭证保存与页面跳转
   private doLogin(accountName: string) {
     AppStorage.setOrCreate<string>('currentUser', accountName);
     router.replaceUrl({ url: 'pages/MainPage' });
   }
-
+  // 2. 登录主逻辑处理
   private handleLogin() {
+    // 验证账号非空
     if (this.account.trim().length === 0) {
       promptAction.showToast({ message: '请输入账号。', duration: 2000 });
       return;
     }
+    // 验证密码非空
     if (this.password.length === 0) {
       promptAction.showToast({ message: '请输入密码。', duration: 2000 });
       return;
     }
-
+    // 模拟登录过程
     this.isLoading = true;
     setTimeout(() => {
       this.isLoading = false;
-      this.doLogin(this.account.trim());
+      this.doLogin(this.account.trim());// 执行登录
     }, 800);
   }
 
@@ -60,12 +63,14 @@ struct LoginPage {
       .margin({ top: 60, bottom: 40 })
 
       Column() {
+        // 账号
         Row() {
           Text('账号')
             .fontSize(14)
             .fontColor('#555555')
             .width(72)
 
+          // 登录账号的输入
           TextInput({ placeholder: '请输入账号或手机号', text: this.account })
             .layoutWeight(1)
             .fontSize(15)
@@ -79,12 +84,14 @@ struct LoginPage {
         .padding({ left: 16, right: 16, top: 4, bottom: 4 })
         .border({ width: { bottom: 1 }, color: '#E0E0E0' })
 
+        // 密码
         Row() {
           Text('密码')
             .fontSize(14)
             .fontColor('#555555')
             .width(72)
 
+          // 登录密码的输入
           TextInput({
             placeholder: '请输入密码',
             text: this.password
@@ -98,6 +105,7 @@ struct LoginPage {
               this.password = value;
             })
 
+          // 密码可见性切换
           Text(this.showPassword ? '隐藏' : '显示')
             .fontSize(13)
             .fontColor('#CF0A2C')
@@ -180,10 +188,12 @@ struct LoginPage {
       .backgroundColor(Color.White)
       .borderRadius(25)
       .border({ width: 1, color: '#E0E0E0' })
+
+      // 演示模式的登录
       .onClick(() => {
         promptAction.showToast({ message: '正在使用演示账号登录...', duration: 1200 });
         setTimeout(() => {
-          this.doLogin('demo@huawei.com');
+          this.doLogin('demo@huawei.com'); // 使用预设账号
         }, 1200);
       })
 
