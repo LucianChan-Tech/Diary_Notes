@@ -1,112 +1,70 @@
-# Diary Notes — 日记备忘录
+# Diary Notes（日记备忘录）
 
-> ArkTS / HarmonyOS NEXT application for work-task management with intelligent priority grading.
+一个基于 **HarmonyOS NEXT + ArkTS** 的轻量任务备忘录示例项目，当前版本以“登录 + 日历选日 + 任务管理 + 优先级分级”为核心功能。
 
----
+## 当前已实现功能
 
-## Features
+### 1) 登录页（`LoginPage.ets`）
+- 账号/密码输入校验（不能为空）
+- 密码明文/密文切换
+- 模拟登录流程（延时后进入主页）
+- “华为账号一键登录”演示入口
 
-| Feature | Detail |
-|---------|--------|
-| **Huawei Account Login** | Login screen mimicking the Huawei Account OAuth flow; uses mock credentials locally |
-| **Monthly Calendar** | Reads the system date, highlights today; navigate months with `<` / `>` |
-| **Work Item Import** | Tap the `+` FAB on any date to add a task to that day |
-| **Auto Priority Grading** | Tasks are automatically graded based on insertion order (see table below) |
-| **Manual Grade Override** | Tap ✎ on any task to change its level at any time |
-| **Priority-sorted List** | Tasks are always displayed **S → A → B → C** (highest urgency first) |
-| **Task Completion** | Toggle ✓ to mark a task complete/incomplete |
-| **Summary Pills** | Pending-task counts per level shown at the top of the main screen |
+### 2) 主页面（`MainPage.ets`）
+- 月历展示（可切换上/下月）
+- 选中日期后查看该日任务
+- 右下角 `+` 按钮新增任务
+- 任务支持 **完成/撤销、编辑等级、删除**
+- 顶部展示各等级未完成任务数量
+- 按等级排序展示任务（S → A → B → C）
 
-### Priority Levels
+### 3) 任务等级与模型（`TaskModel.ets`）
+- 定义任务等级：`S / A / B / C`
+- 提供等级描述与颜色映射
+- 提供任务排序权重
+- 提供自动分级函数 `autoGrade(insertionIndex)`
+  - 第1个任务：S
+  - 第2个任务：A
+  - 第3个任务：B
+  - 第4个及以后：C
 
-| Level | Deadline | Colour |
-|-------|----------|--------|
-| **S** | Must finish **today** | Red `#E53935` |
-| **A** | Must finish within **2 days** | Orange `#FB8C00` |
-| **B** | Must finish within **4 days** | Yellow `#FDD835` |
-| **C** | Must finish within **1 week** | Blue `#1E88E5` |
+## 页面入口与路由
 
-### Auto-grading Logic
+- 应用入口能力：`entry/src/main/ets/entryability/EntryAbility.ets`
+- 首屏加载：`pages/LoginPage`
+- 当前已在 `main_pages.json` 注册页面：
+  - `pages/LoginPage`
+  - `pages/MainPage`
 
-Tasks are graded by their **insertion order** within a given day:
+> 说明：`HistoricalTaskPage.ets`、`SelectDayPage.ets` 目前为空文件，暂未接入页面流转。
 
-```
-1st task added → S
-2nd task added → A
-3rd task added → B
-4th+ tasks     → C
-```
+## 目录结构（核心）
 
-> The grading function lives in `entry/src/main/ets/model/TaskModel.ets → autoGrade()`.
-> Replace the function body to implement your own grading strategy without touching the UI.
-
----
-
-## Project Structure
-
-```
-Diary_Notes/
-├── AppScope/                        # App-level resources & config
-│   ├── app.json5
-│   └── resources/base/element/string.json
+```text
+Diary_Notes_V0.1.04/
+├── AppScope/
 ├── entry/
-│   ├── src/main/
-│   │   ├── ets/
-│   │   │   ├── entryability/
-│   │   │   │   └── EntryAbility.ets   # App entry, loads LoginPage
-│   │   │   ├── model/
-│   │   │   │   └── TaskModel.ets      # Task class, levels, auto-grade
-│   │   │   └── pages/
-│   │   │       ├── LoginPage.ets      # Huawei account login UI
-│   │   │       └── MainPage.ets       # Calendar + task manager
-│   │   ├── module.json5
-│   │   └── resources/
-│   │       └── base/
-│   │           ├── element/
-│   │           │   ├── color.json
-│   │           │   └── string.json
-│   │           └── profile/
-│   │               └── main_pages.json
-│   ├── build-profile.json5
-│   └── oh-package.json5
+│   ├── src/main/ets/
+│   │   ├── entryability/EntryAbility.ets
+│   │   ├── model/TaskModel.ets
+│   │   └── pages/
+│   │       ├── LoginPage.ets
+│   │       └── MainPage.ets
+│   └── src/main/resources/base/profile/main_pages.json
 ├── build-profile.json5
 ├── hvigorfile.ts
 └── oh-package.json5
 ```
 
----
+## 运行方式
 
-## How to Run Locally
+1. 使用 DevEco Studio 打开 `Diary_Notes_V0.1.04` 工程目录。  
+2. 配置 HarmonyOS NEXT 对应 SDK。  
+3. 连接设备或启动模拟器后运行。
 
-### Prerequisites
+## 后续可扩展方向
 
-- [DevEco Studio](https://developer.huawei.com/consumer/en/deveco-studio/) 5.0 or later
-- HarmonyOS SDK API level 11 (bundled with DevEco Studio)
-- A physical device or emulator running HarmonyOS NEXT / API 11+
-
-### Steps
-
-1. **Open the project** in DevEco Studio (`File → Open` → select this folder).
-2. DevEco Studio will sync the project and download any missing SDK components automatically.
-3. Connect your device / start the emulator.
-4. Click **Run ▶** or press `Shift+F10`.
-
-> **Local mock login**: enter any non-empty account and password, or tap **华为账号一键登录** to skip directly to the main screen.
-
----
-
-## Extending the Auto-grading Logic
-
-Open `entry/src/main/ets/model/TaskModel.ets` and edit `autoGrade()`:
-
-```typescript
-export function autoGrade(insertionIndex: number): TaskLevel {
-  // TODO: replace with your own grading strategy
-  if (insertionIndex === 0) return TaskLevel.S;
-  if (insertionIndex === 1) return TaskLevel.A;
-  if (insertionIndex === 2) return TaskLevel.B;
-  return TaskLevel.C;
-}
-```
-
-No other files need to change — the UI reads this function every time a task is added.
+- 接入真实账号体系（替换模拟登录）
+- 增加任务持久化（数据库或首选项）
+- 完善历史任务页/日期选择页
+- 增加任务筛选、搜索、提醒等能力
