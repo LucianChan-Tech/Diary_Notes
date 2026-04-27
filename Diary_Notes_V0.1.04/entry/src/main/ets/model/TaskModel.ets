@@ -4,37 +4,37 @@ export enum TaskLevel {
   B = 'B',
   C = 'C'
 }
-
+// 1. 获取任务等级描述文本
 export function getLevelDesc(level: TaskLevel): string {
   switch (level) {
     case TaskLevel.S:
-      return 'S级 - 今天完成';
+      return 'S级紧急任务请优先完成';
     case TaskLevel.A:
-      return 'A级 - 2天内完成';
+      return 'A级任务请安排完成';
     case TaskLevel.B:
-      return 'B级 - 4天内完成';
+      return 'B级任务请尽快安排完成';
     case TaskLevel.C:
-      return 'C级 - 1周内完成';
+      return 'C级非紧急任务可择日安排完成';
     default:
       return '';
   }
 }
-
+// 2. 获取任务等级对应颜色值
 export function getLevelColor(level: TaskLevel): string {
   switch (level) {
     case TaskLevel.S:
-      return '#E53935';
+      return '#D32F2F';
     case TaskLevel.A:
-      return '#FB8C00';
+      return '#FF7043';
     case TaskLevel.B:
-      return '#FDD835';
+      return '#FFB300';
     case TaskLevel.C:
-      return '#1E88E5';
+      return '#BDBDBD';
     default:
       return '#757575';
   }
 }
-
+// 3. 根据插入位置自动分级
 export function autoGrade(insertionIndex: number): TaskLevel {
   if (insertionIndex === 0) {
     return TaskLevel.S;
@@ -46,7 +46,7 @@ export function autoGrade(insertionIndex: number): TaskLevel {
     return TaskLevel.C;
   }
 }
-
+// 4. 获取等级排序权重
 export function levelSortWeight(level: TaskLevel): number {
   switch (level) {
     case TaskLevel.S:
@@ -63,13 +63,14 @@ export function levelSortWeight(level: TaskLevel): number {
 }
 
 export class Task {
-  id: string;
-  title: string;
-  level: TaskLevel;
-  date: string;
-  completed: boolean;
-  insertionIndex: number;
+  id: string;                // 任务唯一标识
+  title: string;             // 任务标题
+  level: TaskLevel;          // 任务等级(S/A/B/C)
+  date: string;              // 任务日期
+  completed: boolean;        // 完成状态(默认false)
+  insertionIndex: number;    // 插入位置索引
 
+  // 构造函数初始化任务对象
   constructor(
     id: string,
     title: string,
@@ -81,7 +82,7 @@ export class Task {
     this.title = title;
     this.level = level;
     this.date = date;
-    this.completed = false;
+    this.completed = false;   // 让新建任务默认使用未完成状态
     this.insertionIndex = insertionIndex;
   }
 }

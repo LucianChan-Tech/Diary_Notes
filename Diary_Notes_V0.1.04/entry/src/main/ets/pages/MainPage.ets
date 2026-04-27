@@ -213,9 +213,9 @@ struct MainPage {
   CalendarGrid() {
     Column() {
       Row() {
-        Button('<')
-          .width(36)
-          .height(36)
+        Button('\u003C')
+          .width(46)
+          .height(46)
           .fontSize(18)
           .fontColor('#333333')
           .backgroundColor(Color.Transparent)
@@ -228,9 +228,9 @@ struct MainPage {
           .layoutWeight(1)
           .textAlign(TextAlign.Center)
 
-        Button('>')
-          .width(36)
-          .height(36)
+        Button('\u003E')
+          .width(46)
+          .height(46)
           .fontSize(18)
           .fontColor('#333333')
           .backgroundColor(Color.Transparent)
@@ -448,9 +448,9 @@ struct MainPage {
               .borderRadius(20)
               .border({ width: 1.5, color: getLevelColor(level) })
 
-            Text(level === TaskLevel.S ? '今天' :
-              level === TaskLevel.A ? '2天' :
-                level === TaskLevel.B ? '4天' : '1周')
+            Text(level === TaskLevel.S ? '优先完成' :
+              level === TaskLevel.A ? '稍后完成' :
+                level === TaskLevel.B ? '尽快安排完成' : '非紧急任务')
               .fontSize(11)
               .fontColor('#9E9E9E')
               .margin({ top: 4 })
@@ -493,7 +493,7 @@ struct MainPage {
         Column() {
           Row() {
             Column() {
-              Text('日记备忘录')
+              Text('这里是日记备忘录')
                 .fontSize(22)
                 .fontWeight(FontWeight.Bold)
                 .fontColor('#1A1A1A')
@@ -502,6 +502,7 @@ struct MainPage {
                 .fontSize(13)
                 .fontColor('#757575')
                 .margin({ top: 2 })
+
             }
             .alignItems(HorizontalAlign.Start)
             .layoutWeight(1)
@@ -527,7 +528,7 @@ struct MainPage {
                   .fontWeight(FontWeight.Bold)
                   .fontColor(getLevelColor(level))
 
-                Text(`${level}级`)
+                Text(`${level}级任务`)
                   .fontSize(12)
                   .fontColor('#9E9E9E')
               }
