@@ -64,7 +64,7 @@ export struct TaskPopupHost {
       })
         .width('100%')
         .fontSize(15)
-        .onChange((value) => {
+        .onChange((value: string) => {
           this.taskTitle = value;
         })
         .margin({ bottom: 16 })

@@ -8,13 +8,13 @@ export enum TaskLevel {
 export function getLevelDesc(level: TaskLevel): string {
   switch (level) {
     case TaskLevel.S:
-      return 'S级紧急任务，请优先完成';
+      return 'S级紧急任务，请优先完成。';
     case TaskLevel.A:
-      return 'A级任务，请安排完成';
+      return 'A级任务，请尽快安排完成。';
     case TaskLevel.B:
-      return 'B级任务，请尽快安排完成';
+      return 'B级任务，建议近期安排完成。';
     case TaskLevel.C:
-      return 'C级非紧急任务，可择日安排完成';
+      return 'C级非紧急任务，可择日安排完成。';
     default:
       return '';
   }

@@ -1,5 +1,3 @@
-import router from '@ohos.router';
-import promptAction from '@ohos.promptAction';
 import {
   Task,
   TaskLevel,
@@ -68,31 +66,42 @@ struct MainPage {
     return countPendingTasksByLevel(this.allTasks, level);
   }
 
-  private saveTasks(updated: Task[]) {
+  private saveTasks(updated: Task[]): void {
     this.allTasks = updated;
     AppStorage.set<Task[]>('allTasks', updated);
   }
 
-  private closePopup() {
+  private navigateReplace(url: string): void {
+    void this.getUIContext().getRouter().replaceUrl({ url }).catch((): void => {});
+  }
+
+  private showToast(message: string, duration: number = 1500): void {
+    try {
+      this.getUIContext().getPromptAction().showToast({ message, duration });
+    } catch (error) {
+    }
+  }
+
+  private closePopup(): void {
     this.currentPopup = null;
     this.popupTaskTitle = '';
   }
 
-  private openAddTaskPopup() {
+  private openAddTaskPopup(): void {
     const popup = createAddTaskPopup(this.selectedDateKey, this.allTasks);
     this.currentPopup = popup;
     this.popupTaskTitle = '';
     this.popupLevel = popup.initialLevel;
   }
 
-  private openEditTaskPopup(task: Task) {
+  private openEditTaskPopup(task: Task): void {
     const popup = createEditTaskLevelPopup(task);
     this.currentPopup = popup;
     this.popupTaskTitle = task.title;
     this.popupLevel = popup.initialLevel;
   }
 
-  private confirmPopup() {
+  private confirmPopup(): void {
     if (this.currentPopup === null) {
       return;
     }
@@ -106,13 +115,10 @@ struct MainPage {
           idSeed: `${++this.taskIdCounter}`
         });
         this.saveTasks(updated);
-        promptAction.showToast({
-          message: `已添加 ${this.popupLevel} 级任务`,
-          duration: 1500
-        });
+        this.showToast(`已添加 ${this.popupLevel} 级任务`, 1500);
         this.closePopup();
       } catch (error) {
-        promptAction.showToast({ message: '请输入任务内容', duration: 1500 });
+        this.showToast('请输入任务内容', 1500);
       }
       return;
     }
@@ -120,19 +126,20 @@ struct MainPage {
     if (this.currentPopup.type === PopupType.EditTaskLevel) {
       const updated = updateTaskLevel(this.allTasks, this.currentPopup.taskId, this.popupLevel);
       this.saveTasks(updated);
+      this.showToast(`已更新为 ${this.popupLevel} 级任务`, 1500);
       this.closePopup();
     }
   }
 
-  private deleteTask(id: string) {
+  private deleteTask(id: string): void {
     this.saveTasks(deleteTaskById(this.allTasks, id));
   }
 
-  private toggleComplete(id: string) {
+  private toggleComplete(id: string): void {
     this.saveTasks(toggleTaskComplete(this.allTasks, id));
   }
 
-  private prevMonth() {
+  private prevMonth(): void {
     if (this.viewMonth === 1) {
       this.viewMonth = 12;
       this.viewYear -= 1;
@@ -141,7 +148,7 @@ struct MainPage {
     }
   }
 
-  private nextMonth() {
+  private nextMonth(): void {
     if (this.viewMonth === 12) {
       this.viewMonth = 1;
       this.viewYear += 1;
@@ -184,28 +191,37 @@ struct MainPage {
     return hasTasksOnDate(this.allTasks, date);
   }
 
+  private cellDateKey(row: number, col: number): string {
+    return this.dayDateKey(this.dayNumber(row, col));
+  }
+
+  private isTodayCell(row: number, col: number): boolean {
+    return this.cellDateKey(row, col) === dateKey(this.today);
+  }
+
+  private isSelectedCell(row: number, col: number): boolean {
+    return this.cellDateKey(row, col) === this.selectedDateKey;
+  }
+
   @Builder
   DayCell(row: number, col: number) {
-    const dayNum = this.dayNumber(row, col);
-    const cellDateKey = this.dayDateKey(dayNum);
-
     Column() {
-      Text(`${dayNum}`)
+      Text(`${this.dayNumber(row, col)}`)
         .fontSize(15)
-        .fontWeight(cellDateKey === dateKey(this.today) ? FontWeight.Bold : FontWeight.Normal)
+        .fontWeight(this.isTodayCell(row, col) ? FontWeight.Bold : FontWeight.Normal)
         .fontColor(
-          cellDateKey === this.selectedDateKey
+          this.isSelectedCell(row, col)
             ? Color.White
-            : cellDateKey === dateKey(this.today)
+            : this.isTodayCell(row, col)
               ? '#CF0A2C'
               : '#1A1A1A'
         )
 
-      if (this.hasTasksOn(cellDateKey)) {
+      if (this.hasTasksOn(this.cellDateKey(row, col))) {
         Circle()
           .width(5)
           .height(5)
-          .fill(cellDateKey === this.selectedDateKey ? Color.White : '#CF0A2C')
+          .fill(this.isSelectedCell(row, col) ? Color.White : '#CF0A2C')
           .margin({ top: 2 })
       }
     }
@@ -214,10 +230,10 @@ struct MainPage {
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
     .borderRadius(22)
-    .backgroundColor(cellDateKey === this.selectedDateKey ? '#CF0A2C' : Color.Transparent)
+    .backgroundColor(this.isSelectedCell(row, col) ? '#CF0A2C' : Color.Transparent)
     .onClick(() => {
-      this.selectedDateKey = cellDateKey;
-      this.popupLevel = autoGrade(countTasksForDate(this.allTasks, cellDateKey));
+      this.selectedDateKey = this.cellDateKey(row, col);
+      this.popupLevel = autoGrade(countTasksForDate(this.allTasks, this.cellDateKey(row, col)));
     })
   }
 
@@ -283,7 +299,7 @@ struct MainPage {
           if (this.isValidDay(this.dayNumber(row, col))) {
             this.DayCell(row, col);
           } else {
-            Column()
+            Column() {}
               .layoutWeight(1)
               .height(44)
           }
@@ -319,7 +335,7 @@ struct MainPage {
               .onClick(() => {
                 AppStorage.set<string>('currentUser', '');
                 AppStorage.set<Task[]>('allTasks', []);
-                router.replaceUrl({ url: 'pages/LoginPage' });
+                this.navigateReplace('pages/LoginPage');
               })
           }
           .width('100%')
@@ -375,6 +391,7 @@ struct MainPage {
                 Text('暂无任务')
                   .fontSize(15)
                   .fontColor('#9E9E9E')
+
                 Text('点击右下角按钮添加任务')
                   .fontSize(13)
                   .fontColor('#BDBDBD')
@@ -388,9 +405,9 @@ struct MainPage {
               ForEach(this.tasksForSelected(), (task: Task) => {
                 TaskItemView({
                   task,
-                  onToggleComplete: (taskId: string) => this.toggleComplete(taskId),
-                  onEdit: (targetTask: Task) => this.openEditTaskPopup(targetTask),
-                  onDelete: (taskId: string) => this.deleteTask(taskId)
+                  onToggleComplete: (taskId: string) => { this.toggleComplete(taskId); },
+                  onEdit: (targetTask: Task) => { this.openEditTaskPopup(targetTask); },
+                  onDelete: (taskId: string) => { this.deleteTask(taskId); }
                 });
               }, (task: Task) => task.id);
             }
@@ -418,8 +435,8 @@ struct MainPage {
         popupConfig: this.currentPopup,
         taskTitle: $popupTaskTitle,
         selectedLevel: $popupLevel,
-        onClose: () => this.closePopup(),
-        onConfirm: () => this.confirmPopup()
+        onClose: () => { this.closePopup(); },
+        onConfirm: () => { this.confirmPopup(); }
       })
     }
     .width('100%')
