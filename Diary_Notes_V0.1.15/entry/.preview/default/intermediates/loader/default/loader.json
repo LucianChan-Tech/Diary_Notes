@@ -1,0 +1,24 @@
+{
+  "modulePathMap": {
+    "entry": "D:\\Diary_Notes_Version\\Diary_Notes_V0.1.04\\entry"
+  },
+  "compileMode": "esmodule",
+  "projectRootPath": "D:\\Diary_Notes_Version\\Diary_Notes_V0.1.04",
+  "nodeModulesPath": "D:\\Diary_Notes_Version\\Diary_Notes_V0.1.04\\entry\\.preview\\default\\intermediates\\loader_out\\default\\node_modules",
+  "byteCodeHarInfo": {},
+  "declarationEntry": [],
+  "moduleName": "entry",
+  "hspNameOhmMap": {},
+  "harNameOhmMap": {},
+  "packageManagerType": "ohpm",
+  "compileEntry": [],
+  "otherCompileFiles": [],
+  "dynamicImportLibInfo": {},
+  "routerMap": [],
+  "hspResourcesMap": {},
+  "updateVersionInfo": {},
+  "customizedHar": false,
+  "anBuildOutPut": "D:\\Diary_Notes_Version\\Diary_Notes_V0.1.04\\entry\\.preview\\default\\intermediates\\loader_out\\default\\an\\arm64-v8a",
+  "anBuildMode": "type",
+  "buildConfigPath": ".preview\\config\\buildConfig.json"
+}
