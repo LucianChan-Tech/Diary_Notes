@@ -46,22 +46,20 @@ export struct TaskPopupHost {
 
   @Builder
   private AddTaskPopupView() {
-    const popup = this.addTaskPopup();
-
     Column() {
-      Text(popup.title)
+      Text(this.addTaskPopup().title)
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .margin({ bottom: 8 })
 
-      Text(popup.date)
+      Text(this.addTaskPopup().date)
         .width('100%')
         .fontSize(12)
         .fontColor('#9E9E9E')
         .margin({ bottom: 16 })
 
       TextInput({
-        placeholder: popup.placeholder,
+        placeholder: this.addTaskPopup().placeholder,
         text: this.taskTitle
       })
         .width('100%')
@@ -77,7 +75,7 @@ export struct TaskPopupHost {
         .width('100%')
         .margin({ bottom: 8 })
 
-      this.LevelSelector(popup.levelOptions);
+      this.LevelSelector(this.addTaskPopup().levelOptions);
 
       Text(getLevelDesc(this.selectedLevel))
         .fontSize(12)
@@ -86,14 +84,14 @@ export struct TaskPopupHost {
         .margin({ top: 8, bottom: 20 })
 
       Row({ space: 12 }) {
-        Button(popup.cancelText)
+        Button(this.addTaskPopup().cancelText)
           .layoutWeight(1)
           .height(44)
           .backgroundColor('#F5F5F5')
           .fontColor('#555555')
           .onClick(() => this.onClose())
 
-        Button(popup.confirmText)
+        Button(this.addTaskPopup().confirmText)
           .layoutWeight(1)
           .height(44)
           .backgroundColor('#CF0A2C')
@@ -109,22 +107,20 @@ export struct TaskPopupHost {
 
   @Builder
   private EditTaskLevelPopupView() {
-    const popup = this.editTaskPopup();
-
     Column() {
-      Text(popup.title)
+      Text(this.editTaskPopup().title)
         .fontSize(18)
         .fontWeight(FontWeight.Bold)
         .margin({ bottom: 16 })
 
-      Text(`"${popup.taskTitle}"`)
+      Text(`"${this.editTaskPopup().taskTitle}"`)
         .fontSize(14)
         .fontColor('#555555')
         .maxLines(1)
         .textOverflow({ overflow: TextOverflow.Ellipsis })
         .margin({ bottom: 16 })
 
-      this.LevelSelector(popup.levelOptions);
+      this.LevelSelector(this.editTaskPopup().levelOptions);
 
       Text(getLevelDesc(this.selectedLevel))
         .fontSize(12)
@@ -133,14 +129,14 @@ export struct TaskPopupHost {
         .margin({ top: 8, bottom: 24 })
 
       Row({ space: 12 }) {
-        Button(popup.cancelText)
+        Button(this.editTaskPopup().cancelText)
           .layoutWeight(1)
           .height(44)
           .backgroundColor('#F5F5F5')
           .fontColor('#555555')
           .onClick(() => this.onClose())
 
-        Button(popup.confirmText)
+        Button(this.editTaskPopup().confirmText)
           .layoutWeight(1)
           .height(44)
           .backgroundColor('#1E88E5')
@@ -157,25 +153,25 @@ export struct TaskPopupHost {
   build() {
     Stack() {
       if (this.popupConfig !== null) {
-        Column()
+        Column() {}
           .width('100%')
           .height('100%')
           .backgroundColor('#66000000')
           .onClick(() => this.onClose())
 
         Column() {
-          if (this.popupConfig!.type === PopupType.AddTask) {
+          if (this.popupConfig.type === PopupType.AddTask) {
             this.AddTaskPopupView();
           }
 
-          if (this.popupConfig!.type === PopupType.EditTaskLevel) {
+          if (this.popupConfig.type === PopupType.EditTaskLevel) {
             this.EditTaskLevelPopupView();
           }
         }
         .width('92%')
         .position({
           x: '4%',
-          y: this.popupConfig!.type === PopupType.AddTask ? '20%' : '30%'
+          y: this.popupConfig.type === PopupType.AddTask ? '20%' : '30%'
         })
         .shadow({ radius: 24, color: '#40000000', offsetX: 0, offsetY: 8 })
       }
