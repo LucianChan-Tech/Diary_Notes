@@ -1,21 +1,19 @@
+import { TaskRepository, UserSessionRepository } from '../model/AppRepository';
 import {
   Task,
   TaskLevel,
-  addTask,
   autoGrade,
   countPendingTasksByLevel,
   countTasksForDate,
-  deleteTaskById,
   getLevelColor,
   getTasksForDate,
-  hasTasksOnDate,
-  toggleTaskComplete,
-  updateTaskLevel
+  hasTasksOnDate
 } from '../model/TaskModel';
 import {
   PopupType,
   TaskPopupConfig,
   createAddTaskPopup,
+  createDeleteTaskPopup,
   createEditTaskLevelPopup
 } from '../model/PopupTypes';
 import { TaskPopupHost } from './PopupPage';
@@ -39,24 +37,36 @@ function firstWeekday(year: number, month: number): number {
 const WEEKDAY_LABELS: string[] = ['日', '一', '二', '三', '四', '五', '六'];
 const CALENDAR_COLS: number[] = [0, 1, 2, 3, 4, 5, 6];
 
-AppStorage.setOrCreate<Task[]>('allTasks', []);
-AppStorage.setOrCreate<string>('currentUser', '游客');
-
 @Entry
 @Component
 struct MainPage {
-  @StorageLink('allTasks') allTasks: Task[] = [];
-  @StorageLink('currentUser') currentUser: string = '游客';
+  @State private allTasks: Task[] = [];
+  @State private currentUser: string = '';
+  @State private viewYear: number = new Date().getFullYear();
+  @State private viewMonth: number = new Date().getMonth() + 1;
+  @State private selectedDateKey: string = dateKey(new Date());
+  @State private currentPopup: TaskPopupConfig = null;
+  @State private popupTaskTitle: string = '';
+  @State private popupLevel: TaskLevel = TaskLevel.S;
+  @State private viewRevision: number = 0;
 
   private today: Date = new Date();
   private taskIdCounter: number = 0;
 
-  @State private viewYear: number = this.today.getFullYear();
-  @State private viewMonth: number = this.today.getMonth() + 1;
-  @State private selectedDateKey: string = dateKey(this.today);
-  @State private currentPopup: TaskPopupConfig = null;
-  @State private popupTaskTitle: string = '';
-  @State private popupLevel: TaskLevel = TaskLevel.S;
+  aboutToAppear(): void {
+    const hostContext = this.getUIContext().getHostContext();
+    if (hostContext !== undefined) {
+      TaskRepository.initialize(hostContext);
+      UserSessionRepository.initialize(hostContext);
+      this.refreshState();
+    }
+  }
+
+  private refreshState(): void {
+    this.currentUser = UserSessionRepository.getCurrentUser();
+    this.allTasks = TaskRepository.getTasksForUser(this.currentUser);
+    this.viewRevision += 1;
+  }
 
   private tasksForSelected(): Task[] {
     return getTasksForDate(this.allTasks, this.selectedDateKey);
@@ -66,9 +76,9 @@ struct MainPage {
     return countPendingTasksByLevel(this.allTasks, level);
   }
 
-  private saveTasks(updated: Task[]): void {
-    this.allTasks = updated;
-    AppStorage.set<Task[]>('allTasks', updated);
+  private refreshTasks(): void {
+    this.allTasks = TaskRepository.getTasksForUser(this.currentUser);
+    this.viewRevision += 1;
   }
 
   private navigateReplace(url: string): void {
@@ -101,6 +111,10 @@ struct MainPage {
     this.popupLevel = popup.initialLevel;
   }
 
+  private openDeleteTaskPopup(task: Task): void {
+    this.currentPopup = createDeleteTaskPopup(task);
+  }
+
   private confirmPopup(): void {
     if (this.currentPopup === null) {
       return;
@@ -108,13 +122,13 @@ struct MainPage {
 
     if (this.currentPopup.type === PopupType.AddTask) {
       try {
-        const updated = addTask(this.allTasks, {
+        TaskRepository.addTaskForUser(this.currentUser, {
           title: this.popupTaskTitle,
           date: this.currentPopup.date,
           level: this.popupLevel,
           idSeed: `${++this.taskIdCounter}`
         });
-        this.saveTasks(updated);
+        this.refreshTasks();
         this.showToast(`已添加 ${this.popupLevel} 级任务`, 1500);
         this.closePopup();
       } catch (error) {
@@ -124,19 +138,24 @@ struct MainPage {
     }
 
     if (this.currentPopup.type === PopupType.EditTaskLevel) {
-      const updated = updateTaskLevel(this.allTasks, this.currentPopup.taskId, this.popupLevel);
-      this.saveTasks(updated);
+      TaskRepository.updateTaskLevelForUser(this.currentUser, this.currentPopup.taskId, this.popupLevel);
+      this.refreshTasks();
       this.showToast(`已更新为 ${this.popupLevel} 级任务`, 1500);
+      this.closePopup();
+      return;
+    }
+
+    if (this.currentPopup.type === PopupType.DeleteTask) {
+      TaskRepository.deleteTaskForUser(this.currentUser, this.currentPopup.taskId);
+      this.refreshTasks();
+      this.showToast('任务已删除', 1500);
       this.closePopup();
     }
   }
 
-  private deleteTask(id: string): void {
-    this.saveTasks(deleteTaskById(this.allTasks, id));
-  }
-
-  private toggleComplete(id: string): void {
-    this.saveTasks(toggleTaskComplete(this.allTasks, id));
+  private toggleComplete(taskId: string): void {
+    TaskRepository.toggleTaskCompleteForUser(this.currentUser, taskId);
+    this.refreshTasks();
   }
 
   private prevMonth(): void {
@@ -333,8 +352,10 @@ struct MainPage {
               .fontColor('#CF0A2C')
               .padding({ left: 12, right: 4, top: 8, bottom: 8 })
               .onClick(() => {
-                AppStorage.set<string>('currentUser', '');
-                AppStorage.set<Task[]>('allTasks', []);
+                UserSessionRepository.clear();
+                this.currentUser = '';
+                this.allTasks = [];
+                this.currentPopup = null;
                 this.navigateReplace('pages/LoginPage');
               })
           }
@@ -407,7 +428,7 @@ struct MainPage {
                   task,
                   onToggleComplete: (taskId: string) => { this.toggleComplete(taskId); },
                   onEdit: (targetTask: Task) => { this.openEditTaskPopup(targetTask); },
-                  onDelete: (taskId: string) => { this.deleteTask(taskId); }
+                  onDelete: (targetTask: Task) => { this.openDeleteTaskPopup(targetTask); }
                 });
               }, (task: Task) => task.id);
             }
@@ -431,13 +452,15 @@ struct MainPage {
         .margin({ bottom: 28, right: 24 })
         .onClick(() => this.openAddTaskPopup())
 
-      TaskPopupHost({
-        popupConfig: this.currentPopup,
-        taskTitle: $popupTaskTitle,
-        selectedLevel: $popupLevel,
-        onClose: () => { this.closePopup(); },
-        onConfirm: () => { this.confirmPopup(); }
-      })
+      if (this.currentPopup !== null) {
+        TaskPopupHost({
+          popupConfig: this.currentPopup,
+          taskTitle: $popupTaskTitle,
+          selectedLevel: $popupLevel,
+          onClose: () => { this.closePopup(); },
+          onConfirm: () => { this.confirmPopup(); }
+        })
+      }
     }
     .width('100%')
     .height('100%')

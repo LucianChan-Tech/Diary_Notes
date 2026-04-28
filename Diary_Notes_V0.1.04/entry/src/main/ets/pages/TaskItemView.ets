@@ -6,7 +6,7 @@ export struct TaskItemView {
 
   onToggleComplete: (taskId: string) => void = () => {};
   onEdit: (task: Task) => void = () => {};
-  onDelete: (taskId: string) => void = () => {};
+  onDelete: (task: Task) => void = () => {};
 
   build() {
     Row() {
@@ -40,7 +40,7 @@ export struct TaskItemView {
       .alignItems(HorizontalAlign.Start)
 
       Row({ space: 8 }) {
-        Text(this.task.completed ? '撤销' : '完成')
+        Text('完成')
           .fontSize(14)
           .fontColor(this.task.completed ? '#9E9E9E' : '#4CAF50')
           .onClick(() => this.onToggleComplete(this.task.id))
@@ -53,7 +53,7 @@ export struct TaskItemView {
         Text('删除')
           .fontSize(14)
           .fontColor('#E53935')
-          .onClick(() => this.onDelete(this.task.id))
+          .onClick(() => this.onDelete(this.task))
       }
       .margin({ left: 8 })
     }
