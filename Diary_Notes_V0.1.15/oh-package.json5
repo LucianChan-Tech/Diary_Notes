@@ -1,0 +1,8 @@
+{
+  "modelVersion": "6.0.2",
+  "description": "Diary Notes - Work task manager with priority grading",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}
