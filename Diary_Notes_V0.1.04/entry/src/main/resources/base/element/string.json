@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "日记备忘录模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "日记备忘录入口"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "日记备忘录"
+    }
+  ]
+}
