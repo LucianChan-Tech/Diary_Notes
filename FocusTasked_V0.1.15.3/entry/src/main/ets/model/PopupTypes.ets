@@ -132,7 +132,7 @@ export function createRegisterAccountPopup(): RegisterAccountPopupConfig {
 export function createWelcomePopup(username: string): WelcomePopupConfig {
   return {
     type: PopupType.Welcome,
-    title: '欢迎来到聚焦事项备忘录',
+    title: '欢迎来到 FocusTasked',
     confirmText: '好的',
     cancelText: '',
     message: `你好，${username}!`
