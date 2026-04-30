@@ -3,8 +3,8 @@
     "bundleName": "com.example.focustasked",
     "vendor": "example",
     "versionCode": 1153,
-    "versionName": "0.1.15.3",
-    "icon": "$media:thunderbird",
+    "versionName": "V0.1.15.3",
+    "icon": "$media:layered_image",
     "label": "$string:app_name"
   }
 }

@@ -249,7 +249,7 @@ struct MainPage {
           this.isSelectedCell(row, col)
             ? Color.White
             : this.isTodayCell(row, col)
-              ? '#FF2F5D'
+              ? '#CF0A2C'
               : '#1A1A1A'
         )
 
@@ -257,7 +257,7 @@ struct MainPage {
         Circle()
           .width(5)
           .height(5)
-          .fill(this.isSelectedCell(row, col) ? Color.White : '#FF2F5D')
+          .fill(this.isSelectedCell(row, col) ? Color.White : '#CF0A2C')
           .margin({ top: 2 })
       }
     }
@@ -266,7 +266,7 @@ struct MainPage {
     .justifyContent(FlexAlign.Center)
     .alignItems(HorizontalAlign.Center)
     .borderRadius(22)
-    .backgroundColor(this.isSelectedCell(row, col) ? '#FF2F5D' : Color.Transparent)
+    .backgroundColor(this.isSelectedCell(row, col) ? '#CF0A2C' : Color.Transparent)
     .onClick(() => {
       this.selectedDateKey = this.cellDateKey(row, col);
       this.popupLevel = autoGrade(countTasksForDate(this.allTasks, this.cellDateKey(row, col)));
@@ -351,7 +351,7 @@ struct MainPage {
         Column() {
           Row() {
             Column() {
-              Text('FocusTasked')
+              Text('聚焦事项备忘录')
                 .fontSize(22)
                 .fontWeight(FontWeight.Bold)
                 .fontColor('#1A1A1A')
@@ -368,7 +368,7 @@ struct MainPage {
 
             Text('退出')
               .fontSize(14)
-              .fontColor('#FF2F5D')
+              .fontColor('#CF0A2C')
               .padding({ left: 12, right: 4, top: 8, bottom: 8 })
               .onClick(() => {
                 UserSessionRepository.clear();
@@ -466,7 +466,7 @@ struct MainPage {
         .height(56)
         .fontSize(30)
         .fontColor(Color.White)
-        .backgroundColor('#FF2F5D')
+        .backgroundColor('#CF0A2C')
         .borderRadius(28)
         .shadow({ radius: 8, color: '#40000000', offsetX: 0, offsetY: 4 })
         .margin({ bottom: 28, right: 24 })

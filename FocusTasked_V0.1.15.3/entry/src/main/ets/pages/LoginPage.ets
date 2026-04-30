@@ -144,11 +144,17 @@ struct LoginPage {
     Stack() {
       Column() {
         Column() {
-          Image($r('app.media.thunderbird'))
-            .width(88)
-            .height(88)
-            .borderRadius(20)
-            .objectFit(ImageFit.Contain)
+          Stack() {
+            Circle()
+              .width(80)
+              .height(80)
+              .fill('#CF0A2C')
+
+            Text('H')
+              .fontSize(44)
+              .fontWeight(FontWeight.Bold)
+              .fontColor(Color.White)
+          }
 
           Text('用户登录')
             .fontSize(22)
@@ -224,7 +230,7 @@ struct LoginPage {
 
             Text(this.showPassword ? '隐藏' : '显示')
               .fontSize(13)
-              .fontColor('#FF2F5D')
+              .fontColor('#CF0A2C')
               .onClick(() => {
                 this.showPassword = !this.showPassword;
               })
@@ -239,7 +245,7 @@ struct LoginPage {
 
             Text('忘记密码？')
               .fontSize(13)
-              .fontColor('#FF2F5D')
+              .fontColor('#CF0A2C')
               .onClick(() => {
                 this.showToast('当前版本暂不支持找回密码，请重新注册新账号。', 2600);
               })
@@ -259,7 +265,7 @@ struct LoginPage {
           .margin({ top: 28 })
           .fontSize(17)
           .fontWeight(FontWeight.Medium)
-          .backgroundColor('#FF2F5D')
+          .backgroundColor('#CF0A2C')
           .fontColor(Color.White)
           .borderRadius(25)
           .onClick(() => {
@@ -273,9 +279,9 @@ struct LoginPage {
           .fontSize(17)
           .fontWeight(FontWeight.Medium)
           .backgroundColor(Color.White)
-          .fontColor('#FF2F5D')
+          .fontColor('#CF0A2C')
           .borderRadius(25)
-          .border({ width: 1, color: '#FF2F5D' })
+          .border({ width: 1, color: '#CF0A2C' })
           .onClick(() => {
             this.openRegisterPopup();
           })

@@ -106,7 +106,7 @@ export struct TaskPopupHost {
         Button(this.addTaskPopup().confirmText)
           .layoutWeight(1)
           .height(44)
-          .backgroundColor('#FF2F5D')
+          .backgroundColor('#CF0A2C')
           .fontColor(Color.White)
           .onClick(() => this.onConfirm())
       }
@@ -227,7 +227,7 @@ export struct TaskPopupHost {
       Button(this.welcomePopup().confirmText)
         .width('100%')
         .height(44)
-        .backgroundColor('#FF2F5D')
+        .backgroundColor('#CF0A2C')
         .fontColor(Color.White)
         .borderRadius(22)
         .onClick(() => this.onConfirm())
@@ -387,7 +387,7 @@ export struct AuthPopupHost {
         Button(this.registerPopup().confirmText)
           .layoutWeight(1)
           .height(44)
-          .backgroundColor('#FF2F5D')
+          .backgroundColor('#CF0A2C')
           .fontColor(Color.White)
           .onClick(() => this.onConfirm())
       }
