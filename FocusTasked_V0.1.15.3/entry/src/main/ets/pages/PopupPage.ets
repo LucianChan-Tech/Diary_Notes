@@ -125,12 +125,22 @@ export struct TaskPopupHost {
         .fontWeight(FontWeight.Bold)
         .margin({ bottom: 16 })
 
-      Text(`"${this.editTaskPopup().taskTitle}"`)
-        .fontSize(14)
-        .fontColor('#555555')
-        .maxLines(1)
-        .textOverflow({ overflow: TextOverflow.Ellipsis })
+      TextInput({
+        placeholder: this.editTaskPopup().placeholder,
+        text: this.taskTitle
+      })
+        .width('100%')
+        .fontSize(15)
+        .onChange((value: string) => {
+          this.taskTitle = value;
+        })
         .margin({ bottom: 16 })
+
+      Text('优先级')
+        .fontSize(13)
+        .fontColor('#757575')
+        .width('100%')
+        .margin({ bottom: 8 })
 
       this.LevelSelector(this.editTaskPopup().levelOptions);
 

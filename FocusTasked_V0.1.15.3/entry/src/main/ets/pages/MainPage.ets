@@ -155,10 +155,19 @@ struct MainPage {
     }
 
     if (this.currentPopup.type === PopupType.EditTaskLevel) {
-      TaskRepository.updateTaskLevelForUser(this.currentUser, this.currentPopup.taskId, this.popupLevel);
-      this.refreshTasks();
-      this.showToast(`已更新为 ${this.popupLevel} 级任务`);
-      this.closePopup();
+      try {
+        TaskRepository.updateTaskForUser(
+          this.currentUser,
+          this.currentPopup.taskId,
+          this.popupTaskTitle,
+          this.popupLevel
+        );
+        this.refreshTasks();
+        this.showToast(`已更新为 ${this.popupLevel} 级任务`);
+        this.closePopup();
+      } catch (error) {
+        this.showToast('请输入任务内容');
+      }
       return;
     }
 

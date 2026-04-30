@@ -178,3 +178,21 @@ export function updateTaskLevel(allTasks: Task[], id: string, level: TaskLevel):
     return copy;
   });
 }
+
+export function updateTask(allTasks: Task[], id: string, title: string, level: TaskLevel): Task[] {
+  const normalizedTitle = title.trim();
+  if (normalizedTitle.length === 0) {
+    throw new Error('TASK_TITLE_REQUIRED');
+  }
+
+  return allTasks.map((task) => {
+    if (task.id !== id) {
+      return task;
+    }
+
+    const copy = cloneTask(task);
+    copy.title = normalizedTitle;
+    copy.level = level;
+    return copy;
+  });
+}

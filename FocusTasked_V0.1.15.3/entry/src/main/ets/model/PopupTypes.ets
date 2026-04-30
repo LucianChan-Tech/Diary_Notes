@@ -34,6 +34,7 @@ export interface EditTaskLevelPopupConfig extends BasePopupConfig {
   type: PopupType.EditTaskLevel;
   taskId: string;
   taskTitle: string;
+  placeholder: string;
   initialLevel: TaskLevel;
   levelOptions: TaskLevel[];
 }
@@ -90,11 +91,12 @@ export function createAddTaskPopup(date: string, allTasks: Task[]): AddTaskPopup
 export function createEditTaskLevelPopup(task: Task): EditTaskLevelPopupConfig {
   return {
     type: PopupType.EditTaskLevel,
-    title: '修改优先级',
+    title: '编辑任务',
     confirmText: '保存',
     cancelText: '取消',
     taskId: task.id,
     taskTitle: task.title,
+    placeholder: '请输入任务内容',
     initialLevel: task.level,
     levelOptions: POPUP_LEVEL_OPTIONS
   };

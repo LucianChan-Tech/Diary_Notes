@@ -7,6 +7,7 @@ import {
   addTask,
   deleteTaskById,
   toggleTaskComplete,
+  updateTask,
   updateTaskLevel
 } from './TaskModel';
 
@@ -524,6 +525,12 @@ export class TaskRepository {
   static updateTaskLevelForUser(username: string, taskId: string, level: TaskLevel): Task[] {
     const currentTasks = TaskRepository.getTasksForUser(username);
     const updated = updateTaskLevel(currentTasks, taskId, level);
+    return TaskRepository.saveTasksForUser(username, updated);
+  }
+
+  static updateTaskForUser(username: string, taskId: string, title: string, level: TaskLevel): Task[] {
+    const currentTasks = TaskRepository.getTasksForUser(username);
+    const updated = updateTask(currentTasks, taskId, title, level);
     return TaskRepository.saveTasksForUser(username, updated);
   }
 
