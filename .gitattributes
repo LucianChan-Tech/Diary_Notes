@@ -1,0 +1,7 @@
+# Exclude generated preview/build artifacts from GitHub language statistics.
+Diary_Notes_V0.1.15/.appanalyzer/** linguist-generated=true
+Diary_Notes_V0.1.15/entry/.preview/** linguist-generated=true
+Diary_Notes_V0.1.15/entry/build/** linguist-generated=true
+
+# ArkTS is currently recognized by GitHub Linguist as TypeScript-family code.
+*.ets linguist-language=TypeScript

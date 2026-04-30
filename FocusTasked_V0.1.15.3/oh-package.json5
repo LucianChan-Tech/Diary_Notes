@@ -1,0 +1,8 @@
+{
+  "modelVersion": "6.0.2",
+  "description": "FocusTasked - Work task manager with priority grading",
+  "dependencies": {
+  },
+  "devDependencies": {
+  }
+}

@@ -1,0 +1,25 @@
+# Build artifacts
+build/
+.cxx/
+.gradle/
+local.properties
+
+# IDE files
+.idea/
+*.iml
+.hvigor/
+.deveco/
+
+# Node modules
+node_modules/
+oh_modules/
+
+# Generated files
+entry/src/main/ets/generated/
+entry/.preview/
+entry/build/
+.appanalyzer/
+
+# OS files
+.DS_Store
+Thumbs.db

@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "FocusTasked module"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "FocusTasked entry"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "FocusTasked"
+    }
+  ]
+}
