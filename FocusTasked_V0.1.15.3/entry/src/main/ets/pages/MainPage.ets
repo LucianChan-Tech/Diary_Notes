@@ -7,7 +7,8 @@ import {
   countTasksForDate,
   getLevelColor,
   getTasksForDate,
-  hasTasksOnDate
+  hasTasksOnDate,
+  searchTasks
 } from '../model/TaskModel';
 import {
   PopupType,
@@ -15,6 +16,7 @@ import {
   createAddTaskPopup,
   createDeleteTaskPopup,
   createEditTaskLevelPopup,
+  createSearchTaskPopup,
   createWelcomePopup
 } from '../model/PopupTypes';
 import { TaskPopupHost } from './PopupPage';
@@ -50,6 +52,10 @@ struct MainPage {
   @State private currentPopup: TaskPopupConfig = null;
   @State private popupTaskTitle: string = '';
   @State private popupLevel: TaskLevel = TaskLevel.S;
+  @State private searchKeyword: string = '';
+  @State private searchLevelCode: string = 'ALL';
+  @State private searchResults: Task[] = [];
+  @State private hasSearchedTasks: boolean = false;
   @State private viewRevision: number = 0;
 
   private today: Date = new Date();
@@ -99,6 +105,14 @@ struct MainPage {
   private closePopup(): void {
     this.currentPopup = null;
     this.popupTaskTitle = '';
+    this.resetSearchState();
+  }
+
+  private resetSearchState(): void {
+    this.searchKeyword = '';
+    this.searchLevelCode = 'ALL';
+    this.searchResults = [];
+    this.hasSearchedTasks = false;
   }
 
   private openWelcomePopup(): void {
@@ -125,6 +139,11 @@ struct MainPage {
 
   private openDeleteTaskPopup(task: Task): void {
     this.currentPopup = createDeleteTaskPopup(task);
+  }
+
+  private openSearchTaskPopup(): void {
+    this.resetSearchState();
+    this.currentPopup = createSearchTaskPopup();
   }
 
   private confirmPopup(): void {
@@ -182,6 +201,63 @@ struct MainPage {
   private toggleComplete(taskId: string): void {
     TaskRepository.toggleTaskCompleteForUser(this.currentUser, taskId);
     this.refreshTasks();
+  }
+
+  private parseDateKey(targetDateKey: string): Date | null {
+    const parts = targetDateKey.split('-');
+    if (parts.length !== 3) {
+      return null;
+    }
+
+    const year = Number(parts[0]);
+    const month = Number(parts[1]);
+    const day = Number(parts[2]);
+    if (!Number.isInteger(year) || !Number.isInteger(month) || !Number.isInteger(day)) {
+      return null;
+    }
+
+    return new Date(year, month - 1, day);
+  }
+
+  private jumpToTaskDate(task: Task): void {
+    const targetDate = this.parseDateKey(task.date);
+    if (targetDate === null) {
+      this.showToast('日期解析失败');
+      return;
+    }
+
+    this.viewYear = targetDate.getFullYear();
+    this.viewMonth = targetDate.getMonth() + 1;
+    this.selectedDateKey = task.date;
+    this.popupLevel = autoGrade(countTasksForDate(this.allTasks, task.date));
+    this.closePopup();
+    this.showToast(`已跳转到 ${task.date}`);
+  }
+
+  private searchHistoryTasks(): void {
+    const normalizedKeyword = this.searchKeyword.trim();
+    if (normalizedKeyword.length === 0) {
+      this.showToast('请输入搜索内容');
+      return;
+    }
+
+    const targetLevel = this.searchLevelCode === 'ALL'
+      ? undefined
+      : this.searchLevelCode as TaskLevel;
+    this.searchResults = searchTasks(this.allTasks, {
+      keyword: normalizedKeyword,
+      level: targetLevel
+    });
+    this.hasSearchedTasks = true;
+
+    if (this.searchResults.length === 1) {
+      this.jumpToTaskDate(this.searchResults[0]);
+      return;
+    }
+
+    if (this.searchResults.length === 0) {
+      this.showToast('未找到符合条件的任务');
+    }
   }
 
   private prevMonth(): void {
@@ -462,7 +538,7 @@ struct MainPage {
               }, (task: Task) => task.id);
             }
           }
-          .padding({ left: 16, right: 16, bottom: 80 })
+          .padding({ left: 16, right: 16, bottom: 132 })
         }
         .width('100%')
       }
@@ -470,15 +546,31 @@ struct MainPage {
       .width('100%')
       .height('100%')
 
+      Row({ space: 10 }) {
+        Text('搜索历史任务')
+          .layoutWeight(1)
+          .fontSize(14)
+          .fontColor('#9E9E9E')
+
+      }
+      .width('75%')
+      .height(48)
+      .padding({ left: 16, right: 16 })
+      .backgroundColor(Color.White)
+      .borderRadius(24)
+      .shadow({ radius: 8, color: '#14000000', offsetX: 0, offsetY: 2 })
+      .margin({ right: 88, bottom: 24 })
+      .onClick(() => this.openSearchTaskPopup())
+
       Button('+')
-        .width(56)
-        .height(56)
-        .fontSize(30)
+        .width(48)
+        .height(48)
+        .fontSize(24)
         .fontColor(Color.White)
         .backgroundColor('#FF2F5D')
-        .borderRadius(28)
+        .borderRadius(24)
         .shadow({ radius: 8, color: '#40000000', offsetX: 0, offsetY: 4 })
-        .margin({ bottom: 28, right: 24 })
+        .margin({ bottom: 24, right: 24 })
         .onClick(() => this.openAddTaskPopup())
 
       if (this.currentPopup !== null) {
@@ -486,8 +578,14 @@ struct MainPage {
           popupConfig: this.currentPopup,
           taskTitle: $popupTaskTitle,
           selectedLevel: $popupLevel,
+          searchKeyword: $searchKeyword,
+          searchLevelCode: $searchLevelCode,
+          searchResults: $searchResults,
+          hasSearchedTasks: $hasSearchedTasks,
           onClose: () => { this.closePopup(); },
-          onConfirm: () => { this.confirmPopup(); }
+          onConfirm: () => { this.confirmPopup(); },
+          onSearch: () => { this.searchHistoryTasks(); },
+          onSelectSearchResult: (task: Task) => { this.jumpToTaskDate(task); }
         })
       }
     }

@@ -5,19 +5,26 @@ import {
   EditTaskLevelPopupConfig,
   PopupType,
   RegisterAccountPopupConfig,
+  SearchTaskPopupConfig,
   TaskPopupConfig,
   WelcomePopupConfig
 } from '../model/PopupTypes';
-import { TaskLevel, getLevelColor, getLevelDesc } from '../model/TaskModel';
+import { Task, TaskLevel, getLevelColor, getLevelDesc } from '../model/TaskModel';
 
 @Component
 export struct TaskPopupHost {
   @Prop popupConfig: TaskPopupConfig = null;
   @Link taskTitle: string;
   @Link selectedLevel: TaskLevel;
+  @Link searchKeyword: string;
+  @Link searchLevelCode: string;
+  @Link searchResults: Task[];
+  @Link hasSearchedTasks: boolean;
 
   onClose: () => void = () => {};
   onConfirm: () => void = () => {};
+  onSearch: () => void = () => {};
+  onSelectSearchResult: (task: Task) => void = (_task: Task): void => {};
 
   private addTaskPopup(): AddTaskPopupConfig {
     return this.popupConfig as AddTaskPopupConfig;
@@ -31,8 +38,27 @@ export struct TaskPopupHost {
     return this.popupConfig as DeleteTaskPopupConfig;
   }
 
+  private searchTaskPopup(): SearchTaskPopupConfig {
+    return this.popupConfig as SearchTaskPopupConfig;
+  }
+
   private welcomePopup(): WelcomePopupConfig {
     return this.popupConfig as WelcomePopupConfig;
+  }
+
+  private searchLevelOptions(): string[] {
+    return ['ALL', TaskLevel.S, TaskLevel.A, TaskLevel.B, TaskLevel.C];
+  }
+
+  private searchLevelText(levelCode: string): string {
+    return levelCode === 'ALL' ? '全部' : levelCode;
+  }
+
+  private searchLevelColor(levelCode: string): string {
+    if (levelCode === TaskLevel.S || levelCode === TaskLevel.A || levelCode === TaskLevel.B || levelCode === TaskLevel.C) {
+      return getLevelColor(levelCode as TaskLevel);
+    }
+    return '#757575';
   }
 
   @Builder
@@ -219,6 +245,129 @@ export struct TaskPopupHost {
   }
 
   @Builder
+  private SearchTaskPopupView() {
+    Column() {
+      Text(this.searchTaskPopup().title)
+        .fontSize(18)
+        .fontWeight(FontWeight.Bold)
+        .margin({ bottom: 16 })
+
+      TextInput({
+        placeholder: this.searchTaskPopup().keywordPlaceholder,
+        text: this.searchKeyword
+      })
+        .width('100%')
+        .fontSize(15)
+        .onChange((value: string) => {
+          this.searchKeyword = value;
+        })
+        .margin({ bottom: 16 })
+
+      Text(this.searchTaskPopup().levelLabel)
+        .fontSize(13)
+        .fontColor('#757575')
+        .width('100%')
+        .margin({ bottom: 8 })
+
+      Row({ space: 8 }) {
+        ForEach(this.searchLevelOptions(), (levelCode: string) => {
+          Text(this.searchLevelText(levelCode))
+            .padding({ left: 14, right: 14, top: 8, bottom: 8 })
+            .fontSize(14)
+            .fontWeight(FontWeight.Medium)
+            .fontColor(this.searchLevelCode === levelCode ? Color.White : this.searchLevelColor(levelCode))
+            .backgroundColor(this.searchLevelCode === levelCode ? this.searchLevelColor(levelCode) : '#F5F5F5')
+            .borderRadius(18)
+            .onClick(() => {
+              this.searchLevelCode = levelCode;
+            });
+        });
+      }
+      .width('100%')
+      .margin({ bottom: 16 })
+
+      Button(this.searchTaskPopup().confirmText)
+        .width('100%')
+        .height(44)
+        .backgroundColor('#FF2F5D')
+        .fontColor(Color.White)
+        .borderRadius(22)
+        .margin({ bottom: 16 })
+        .onClick(() => this.onSearch())
+
+      if (!this.hasSearchedTasks) {
+        Text('输入条件后搜索，可从结果中选择日期')
+          .width('100%')
+          .fontSize(13)
+          .fontColor('#9E9E9E')
+          .margin({ bottom: 20 })
+      } else if (this.searchResults.length === 0) {
+        Text(this.searchTaskPopup().emptyResultText)
+          .width('100%')
+          .fontSize(13)
+          .fontColor('#9E9E9E')
+          .margin({ bottom: 20 })
+      } else {
+        Scroll() {
+          Column({ space: 10 }) {
+            ForEach(this.searchResults, (task: Task) => {
+              Row() {
+                Column() {
+                  Text(task.title)
+                    .width('100%')
+                    .fontSize(15)
+                    .fontWeight(FontWeight.Medium)
+                    .fontColor('#1A1A1A')
+                    .maxLines(1)
+                    .textOverflow({ overflow: TextOverflow.Ellipsis })
+
+                  Row({ space: 8 }) {
+                    Text(task.date)
+                      .fontSize(12)
+                      .fontColor('#757575')
+
+                    Text(task.level)
+                      .fontSize(12)
+                      .fontColor(getLevelColor(task.level))
+                  }
+                  .margin({ top: 4 })
+                }
+                .layoutWeight(1)
+                .alignItems(HorizontalAlign.Start)
+
+                Text('跳转')
+                  .fontSize(13)
+                  .fontColor('#FF2F5D')
+              }
+              .width('100%')
+              .padding(12)
+              .backgroundColor('#FAFAFA')
+              .borderRadius(12)
+              .onClick(() => this.onSelectSearchResult(task))
+            }, (task: Task) => task.id);
+          }
+          .width('100%')
+        }
+        .width('100%')
+        .height(220)
+        .margin({ bottom: 20 })
+      }
+
+      Button(this.searchTaskPopup().cancelText)
+        .width('100%')
+        .height(42)
+        .backgroundColor('#F5F5F5')
+        .fontColor('#555555')
+        .borderRadius(21)
+        .onClick(() => this.onClose())
+    }
+    .width('100%')
+    .padding(24)
+    .backgroundColor(Color.White)
+    .borderRadius(16)
+  }
+
+  @Builder
   private WelcomePopupView() {
     Column() {
       Text(this.welcomePopup().title)
@@ -270,6 +419,10 @@ export struct TaskPopupHost {
             this.DeleteTaskPopupView();
           }
 
+          if (this.popupConfig.type === PopupType.SearchTask) {
+            this.SearchTaskPopupView();
+          }
+
           if (this.popupConfig.type === PopupType.Welcome) {
             this.WelcomePopupView();
           }
@@ -281,6 +434,8 @@ export struct TaskPopupHost {
             ? '34%'
             : this.popupConfig.type === PopupType.AddTask
               ? '20%'
+              : this.popupConfig.type === PopupType.SearchTask
+                ? '12%'
               : this.popupConfig.type === PopupType.Welcome
                 ? '26%'
                 : '30%'

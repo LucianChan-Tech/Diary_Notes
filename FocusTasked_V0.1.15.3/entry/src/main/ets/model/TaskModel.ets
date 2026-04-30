@@ -94,6 +94,11 @@ export interface CreateTaskInput {
   idSeed: string;
 }
 
+export interface SearchTaskInput {
+  keyword: string;
+  level?: TaskLevel;
+}
+
 function cloneTask(task: Task): Task {
   const copy = new Task(task.id, task.title, task.level, task.date, task.insertionIndex);
   copy.completed = task.completed;
@@ -195,4 +200,30 @@ export function updateTask(allTasks: Task[], id: string, title: string, level: T
     copy.level = level;
     return copy;
   });
+}
+
+export function searchTasks(allTasks: Task[], input: SearchTaskInput): Task[] {
+  const normalizedKeyword = input.keyword.trim().toLowerCase();
+  if (normalizedKeyword.length === 0) {
+    return [];
+  }
+
+  return allTasks
+    .filter((task) => {
+      const titleMatches = task.title.toLowerCase().includes(normalizedKeyword);
+      const levelMatches = input.level === undefined || task.level === input.level;
+      return titleMatches && levelMatches;
+    })
+    .sort((a, b) => {
+      if (a.date !== b.date) {
+        return a.date < b.date ? 1 : -1;
+      }
+
+      const levelDiff = levelSortWeight(a.level) - levelSortWeight(b.level);
+      if (levelDiff !== 0) {
+        return levelDiff;
+      }
+
+      return a.insertionIndex - b.insertionIndex;
+    });
 }

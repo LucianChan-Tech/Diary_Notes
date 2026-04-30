@@ -4,6 +4,7 @@ export enum PopupType {
   AddTask = 'add-task',
   EditTaskLevel = 'edit-task-level',
   DeleteTask = 'delete-task',
+  SearchTask = 'search-task',
   RegisterAccount = 'register-account',
   Welcome = 'welcome'
 }
@@ -46,6 +47,13 @@ export interface DeleteTaskPopupConfig extends BasePopupConfig {
   message: string;
 }
 
+export interface SearchTaskPopupConfig extends BasePopupConfig {
+  type: PopupType.SearchTask;
+  keywordPlaceholder: string;
+  levelLabel: string;
+  emptyResultText: string;
+}
+
 export interface RegisterAccountPopupConfig extends BasePopupConfig {
   type: PopupType.RegisterAccount;
   displayNameLabel: string;
@@ -67,6 +75,7 @@ export type TaskPopupConfig =
   | AddTaskPopupConfig
   | EditTaskLevelPopupConfig
   | DeleteTaskPopupConfig
+  | SearchTaskPopupConfig
   | WelcomePopupConfig
   | null;
 
@@ -111,6 +120,18 @@ export function createDeleteTaskPopup(task: Task): DeleteTaskPopupConfig {
     taskId: task.id,
     taskTitle: task.title,
     message: '删除后不可恢复，请确认是否继续。'
+  };
+}
+
+export function createSearchTaskPopup(): SearchTaskPopupConfig {
+  return {
+    type: PopupType.SearchTask,
+    title: '搜索历史任务',
+    confirmText: '搜索',
+    cancelText: '取消',
+    keywordPlaceholder: '请输入任务内容',
+    levelLabel: '任务等级',
+    emptyResultText: '暂未找到符合条件的任务'
   };
 }
 
