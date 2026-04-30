@@ -2,15 +2,15 @@
   "string": [
     {
       "name": "module_desc",
-      "value": "聚焦事项备忘录模块"
+      "value": "FocusTasked module"
     },
     {
       "name": "EntryAbility_desc",
-      "value": "聚焦事项备忘录入口"
+      "value": "FocusTasked entry"
     },
     {
       "name": "EntryAbility_label",
-      "value": "聚焦事项备忘录"
+      "value": "FocusTasked"
     }
   ]
 }
