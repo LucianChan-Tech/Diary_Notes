@@ -1,0 +1,16 @@
+{
+  "string": [
+    {
+      "name": "module_desc",
+      "value": "聚焦事项备忘录模块"
+    },
+    {
+      "name": "EntryAbility_desc",
+      "value": "聚焦事项备忘录入口"
+    },
+    {
+      "name": "EntryAbility_label",
+      "value": "聚焦事项备忘录"
+    }
+  ]
+}
